@@ -4,15 +4,29 @@ import { HttpClient} from '@angular/common/http';
 interface Login{
   login: boolean;
   message: string;
+  data: [{
+    userID:number;
+    email:string;
+    password:string;
+  }];
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class CommonService {
-private loginURL="http://localhost:4400/login"
+private loginURL="http://localhost:4400/login";
+private signupURL="http://localhost:4400/signup";
+private userURL="http://localhost:4400/user";
+private updateURL="http://localhost:4400/updateUser";
+private deleteURL="http://localhost:4400/deleteUser"
 
   constructor(private http:HttpClient) { }
+
+  deleteUser(id:any){
+    return this.http.delete<{deleteUser:boolean, message:string}>(this.deleteURL + "/" + id)
+    //doesn't need a body because the parameter is being passed through the URL
+  }
 
   loginService(email:string, password:string){
     let loginBody = {
@@ -23,4 +37,29 @@ private loginURL="http://localhost:4400/login"
     }
     return this.http.post<Login>(this.loginURL, loginBody)
   }
+
+  signupService(email:string, password:string){
+    //returns the observable
+    let signupBody = {
+      "email": email,
+      "password": password
+  }
+
+    return this.http.post<{ newuser:boolean, message: any }>(this.signupURL, signupBody)
+  }
+
+  getUser(id:any){
+    return this.http.get<{user:Boolean, message:string, userData: [{UserID:number, email:string, password:string}] }>(this.userURL + "/" + id);
+  }
+
+  updateUser(id:any, email:string, password:string){
+    let updateBody={
+      "userID": id,
+      "email": email,
+      "password": password
+    }
+    return this.http.put<{update:boolean, message:any}>(this.updateURL, updateBody);
+  }
 }
+
+

@@ -1,0 +1,43 @@
+<div class="container">
+  <div class="form-floating mt-5">
+    <textarea [(ngModel)]="newpost" class="form-control postText" placeholder="Leave a comment here" id="floatingTextarea" rows="10"></textarea>
+    <label for="floatingTextarea">Post something here</label>
+  </div>
+  <div class="mt-5">
+
+    <!-- <div *ngIf="addStatus" class="mt-3 mb-3">**Successfully Added</div>
+    <div *ngIf="!addStatus">{{addPostMessage}}</div> -->
+
+
+    <div class="input-group">
+      <input type="file" class="form-control" id="inputGroupFile04" (change)="onChange($event)" aria-describedby="inputGroupFileAddon04" aria-label="Upload" name = "file">
+      <button class="btn btn-outline-secondary" type="button" id="inputGroupFileAddon04" (click)="uploadImage()">Upload</button>
+    </div>
+
+  <button class="btn btn-primary" (click)="addNewPost()">POST</button> | <button class="btn btn-primary"(click)="getPosts()">GET</button>
+  </div>
+
+<!--display content-->
+<div class="table-responsive">
+  <table class="table mt-5">
+    <tr>
+      <th>ID</th>
+      <th>Post</th>
+      <th>Actions</th>
+      <th>Thumbnail</th>
+    </tr>
+    <tr *ngFor="let post of posts">
+      <td width ="10%">{{post.id}}</td>
+      <td>{{post.post}}</td>
+      <td><img [src]="post.thumbnail"></td>
+      <td width = "20%">
+        <!-- <button (click)="editPost(post.id)" class="btn btn-primary">Edit</button> &nbsp; -->
+        <button class="btn btn-secondary" (click)="deletePost(post.id)">Delete</button>
+      </td>
+    </tr>
+  </table>
+</div>
+
+<!--file input-->
+
+

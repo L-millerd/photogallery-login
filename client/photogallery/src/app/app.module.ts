@@ -10,6 +10,9 @@ import { PhotoDetailsComponent } from './photo-details/photo-details.component';
 import { EmployeesComponent } from './employees/employees.component';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
+import { SignupComponent } from './signup/signup.component';
+import { UpdateUserComponent } from './update-user/update-user.component';
+import { PostsComponent } from './posts/posts.component';
 
 @NgModule({
   declarations: [
@@ -18,7 +21,10 @@ import { RegisterComponent } from './register/register.component';
     PhotoDetailsComponent,
     EmployeesComponent,
     LoginComponent,
-    RegisterComponent
+    RegisterComponent,
+    SignupComponent,
+    UpdateUserComponent,
+    PostsComponent
   ],
   imports: [
     BrowserModule,

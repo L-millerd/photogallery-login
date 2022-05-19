@@ -15,17 +15,16 @@ export class LoginComponent implements OnInit {
   constructor(private cs: CommonService, private router: Router) { }
 
   login(){
-
-    // console.log(this.email);
-    // console.log(this.password);
-
     this.cs.loginService(this.email, this.password).subscribe( loginData  => {
-      console.log("hello", loginData.login);
+      // console.log("hello", loginData.login);
       this.loginStatus = loginData.login;
 
       ///if loginStatus is true navigate to photos
       if(loginData.login){
         this.router.navigate(['/photos', 2]);
+        //add user details to local storage
+        localStorage.setItem("photoUserID", JSON.stringify(loginData.data[0].userID));
+
       }
     })
   }

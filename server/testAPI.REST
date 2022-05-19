@@ -31,3 +31,72 @@ Content-Type: application/json
     "first_name": "Manny",
     "last_name": "Brown"
 }
+
+### 
+POST {{url}}/signup
+Content-Type: application/json
+
+{
+    "email": "asdfasf",
+    "password": "123"
+}
+
+###
+PUT {{url}}/updateUser
+Content-Type: application/json
+
+{
+    "userID": "1",
+    "email": "kyle@vanarts.com",
+    "password": "654321"
+}
+
+###
+GET {{url}}/user/10
+
+###
+DELETE {{url}}/deleteuser/9
+
+###
+POST {{url}}/textarea
+Content-Type: application/json
+
+{
+    "text": "text from the server"
+}
+
+###
+GET {{url}}/posts
+
+###
+POST {{url}}/posts
+Content-Type: application/json
+
+{
+    "newpost": "testing from TEST API",
+    "thumbnail": "image1.png"
+}
+
+### Not working
+PUT {{url}}/posts
+Content-Type: application/json
+
+{
+    "postID": 6,
+    "updatePost": "edited post from test API"
+}
+
+### 
+DELETE {{url}}/posts/14
+
+###
+POST {{url}}/upload 
+Content-Type: multipart/form-data; boundary=imageboundary
+
+--imageboundary 
+Content-Disposition: form-data; name="file"; filename="image1.jpg" 
+Content-Type: image/png
+
+< ./image1.jpg 
+--imageboundary--
+

@@ -1,6 +1,8 @@
 import express from 'express';
+import { readyException } from 'jquery';
 import cors from 'cors';
 import mysql from 'mysql';
+import multer from 'multer';
 
 const db = mysql.createConnection({
   host: 'localhost',
@@ -10,85 +12,49 @@ const db = mysql.createConnection({
   database: 'Employees'
 });
 
-
-let jsonData = [
-    {
-      "albumId": 1,
-      "id": 1,
-      "title": "accusamus beatae ad facilis cum similique qui sunt",
-      "url": "https://via.placeholder.com/600/92c952",
-      "thumbnailUrl": "https://via.placeholder.com/150/92c952"
-    },
-    {
-      "albumId": 1,
-      "id": 2,
-      "title": "reprehenderit est deserunt velit ipsam",
-      "url": "https://via.placeholder.com/600/771796",
-      "thumbnailUrl": "https://via.placeholder.com/150/771796"
-    },
-    {
-      "albumId": 1,
-      "id": 3,
-      "title": "officia porro iure quia iusto qui ipsa ut modi",
-      "url": "https://via.placeholder.com/600/24f355",
-      "thumbnailUrl": "https://via.placeholder.com/150/24f355"
-    },
-    {
-      "albumId": 1,
-      "id": 4,
-      "title": "culpa odio esse rerum omnis laboriosam voluptate repudiandae",
-      "url": "https://via.placeholder.com/600/d32776",
-      "thumbnailUrl": "https://via.placeholder.com/150/d32776"
-    },
-    {
-      "albumId": 1,
-      "id": 5,
-      "title": "natus nisi omnis corporis facere molestiae rerum in",
-      "url": "https://via.placeholder.com/600/f66b97",
-      "thumbnailUrl": "https://via.placeholder.com/150/f66b97"
-    },
-    {
-      "albumId": 1,
-      "id": 6,
-      "title": "accusamus ea aliquid et amet sequi nemo",
-      "url": "https://via.placeholder.com/600/56a8c2",
-      "thumbnailUrl": "https://via.placeholder.com/150/56a8c2"
-    },
-    {
-      "albumId": 1,
-      "id": 7,
-      "title": "officia delectus consequatur vero aut veniam explicabo molestias",
-      "url": "https://via.placeholder.com/600/b0f7cc",
-      "thumbnailUrl": "https://via.placeholder.com/150/b0f7cc"
-    },
-    {
-      "albumId": 1,
-      "id": 8,
-      "title": "aut porro officiis laborum odit ea laudantium corporis",
-      "url": "https://via.placeholder.com/600/54176f",
-      "thumbnailUrl": "https://via.placeholder.com/150/54176f"
-    },
-    {
-      "albumId": 1,
-      "id": 9,
-      "title": "qui eius qui autem sed",
-      "url": "https://via.placeholder.com/600/51aa97",
-      "thumbnailUrl": "https://via.placeholder.com/150/51aa97"
-    },
-]
-
-const server = express();
-
-server.use(cors());
-
-server.use(express.json())
-
 db.connect(error =>{
   if(error)
     console.log("sorry, cannot connect to db", error);
   else
     console.log ("connected to mysql db");
+});
+
+
+const server = express();
+
+server.use(cors(corsOption));
+
+var corsOption={
+  origin: ["http://localhost:4200"],
+  optionSuccessStatus: 200
+}
+
+server.use(express.json())
+
+
+/////IMAGE UPLOADS
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, './uploads')
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname)
+  }
 })
+
+const fileupload = multer({ storage: storage });
+
+
+//File upload API
+server.post('/upload', fileupload.single("file") , (req, res) => {
+  console.log(req.file);
+})
+
+/////END IMAGE UPLOADS
+
+
+
+
 
 server.get('/employeesapi', (req, res) => {
   let allEmpSP = "SELECT * FROM Employee";
@@ -100,7 +66,7 @@ server.get('/employeesapi', (req, res) => {
     else {
       res.json(data);
        // console.log(data);
-    }
+    }1
   })
 })
 
@@ -143,7 +109,22 @@ server.post('/login', (req, res) => {
   })
 })
 
+//SIGNUP stored proceedure not created yet - incorrect format, would need first_name and last_name too
+server.post('/signup', (req, res)=>{
+  let email = req.body.email;
+  let password = req.body.password;
+  let query = "CALL `signup`(?,?)";
+  db.query(query, [email, password], (error, data)=> {
+    if(error){
+      res.json({newuser: false, message: error})
+    }
+    else{
+      res.json({newuser: true, message: "New user added to the db"});
+    }
+  })
+})
 
+//working register
 server.post('/register', (req,res) => {
   let email = req.body.email;
   let password = req.body.password;
@@ -165,6 +146,51 @@ server.post('/register', (req,res) => {
 
 })
 
+server.put('/updateUser', (req,res) =>{
+  let userID = req.body.userID;
+  let email = req.body.email;
+  let password = req.body.password;
+  let query = "CALL `updateUser`(?, ?, ?)";
+  db.query(query, [userID, email, password], (error, data, fields)=>{
+    if(error){
+      res.json({update: false, message: error});
+    }
+    else{
+      res.json({update: true, message: "User info successfully updated"})
+    }
+  })
+})
+
+server.get('/user/:id', (req, res) =>{
+  let userID = req.params.id;
+  let query = "CALL `getUser`(?)";
+  db.query(query, [userID], (error, data, fields) =>{
+    if(error){
+      res.json({user: false, message:error})
+    }
+    else{
+      if(data[0].length === 0){
+        res.json({user: false, message: "No user with that id exists"})
+      }
+      else{
+        res.json({user:true, message: "User found", userData: data[0]});
+      }
+    }
+  })
+})
+
+server.delete('/deleteuser/:id', (req, res) => {
+  let userID = req.params.id; //params because it comes from the URL
+  let query = "CALL `deleteUser` (?)";
+  db.query(query, [userID], (error, data) => {
+    if(error){
+      res.json({deleteUser: false, message: error})
+    }
+    else{
+      res.json({ deleteUser: true, message: "User deleted successfully"});
+    }
+  })
+})
 
 //req is is data from client to server
 //res is data from server to the client 
@@ -181,3 +207,74 @@ server.get('/photosapi/:photoid', (req, res) => {
 server.listen(4400, function(){
     console.log('server is successfully running on port 4400')
 })
+
+///////////////////////////////// Server Box /////////////////////////////////////////
+
+server.get('/posts', (req, res) => {
+  let query = "CALL `GetPost`()";
+  db.query(query, (error, data) =>{
+    if(error){
+      res.json({data: false, message: error});
+    }
+    else{
+      res.json({data: data[0], message: "Success"});
+    }
+  })
+});
+ 
+server.post('/posts', (req, res)=>{
+  let query = "CALL `NewPost`(?, ?)";
+  db.query(query, [req.body.newpost, req.body.thumbnail], (error, newpostfromSQL) => {
+    if(error){
+      res.json({newpost: false, message: error})
+    }
+    else{
+      res.json({newpost: newpostfromSQL, message: "new post inserted"});
+    }
+  })
+})
+
+//this SP sends DEL_SUCESS as 0 or 1, we store it in 'delete success'
+//delete does not take any req.body, HAS to be req.params
+server.delete('/posts/:id', (req,res) =>{
+  let query = "CALL `DeletePost`(?)";
+  db.query(query, [req.params.id], (error, deleteSuccess) => {
+    ///if SP doesn't work 
+    if(error){
+      res.json({deleteSuccess: false, message: error});
+    }
+    //If it does work, but id is not found vs found
+    else{
+      if(deleteSuccess[0][0].DEL_SUCCESS == 0){
+        res.json({ deleteSuccess: deleteSuccess[0][0].DEL_SUCCESS, message: "ID not Found"})
+      }
+      else{
+        res.json({ deleteSuccess: deleteSuccess[0][0].DEL_SUCCESS, message: "deleted successfully"});
+      }
+    }
+  })
+})
+
+
+
+//file upload API
+server.post('/upload', fileupload.single("file"), (req, res) =>{
+  console.log(req.file.filename);
+})
+
+
+// server.put('/posts', (req, res)=>{
+//   let query = "CALL `UpdatePost`(?, ?)";
+//   let postID = req.query.id;
+//   let updatePost = req.body.updatePost;
+//   db.query(query, [postID, updatePost], (error, data)=>{
+//     if(error){
+//       res.json({editPost: false, message: error});
+//     }
+//     else{
+//       res.json({editPost: true, message: "Post successfully edited"});
+//     }
+//   })
+// })
+
+
