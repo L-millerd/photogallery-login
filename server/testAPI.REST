@@ -1,4 +1,5 @@
 @url = http://localhost:4400
+@urlprod = 
 GET http://localhost:4400/photosapi
 
 ###

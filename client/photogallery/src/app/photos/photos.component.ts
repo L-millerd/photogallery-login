@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Photo } from '../interfaces/photos.interface';
 import {PhotoTB} from '../interfaces/photos.interface';
 import { PhotoserviceService } from '../services/photoservice.service';
+import {environment} from 'src/environments/environment';
 
 
 @Component({
@@ -10,7 +11,8 @@ import { PhotoserviceService } from '../services/photoservice.service';
   styleUrls: ['./photos.component.scss']
 })
 export class PhotosComponent implements OnInit {
-
+  name_of_env = environment.name;
+  server=environment.server;
   photos:any[] =[];
   myformdata:any;
 
