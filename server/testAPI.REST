@@ -6,11 +6,7 @@ GET http://localhost:4400/photosapi
 GET http://localhost:4400/photosapi/5
 
 ###
-
-GET http://localhost:4400/employeesapi
-
-###
-GET {{url}}/employeesapi/3
+GET http://localhost:4400/photos
 
 ###
 POST {{url}}/login 
@@ -77,26 +73,34 @@ Content-Type: application/json
     "thumbnail": "image1.png"
 }
 
-### Not working
-PUT {{url}}/posts
+
+###
+GET http://localhost:4400/photos
+
+###
+POST http://localhost:4400/photos
 Content-Type: application/json
 
 {
-    "postID": 6,
-    "updatePost": "edited post from test API"
+    "albumId_fromC": 1,
+    "title_fromC": "test Title",
+    "url_fromC": "sittingbridge.jpg",
+    "tn_fromC": "tn_sittingbridge.jpg"
 }
 
-### 
-DELETE {{url}}/posts/14
-
 ###
-POST {{url}}/upload 
-Content-Type: multipart/form-data; boundary=imageboundary
-
---imageboundary 
-Content-Disposition: form-data; name="file"; filename="image1.jpg" 
+POST http://localhost:4400/upload
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+    
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file_fromC"; filename="sittingbridge.jpg" 
 Content-Type: image/png
 
-< ./image1.jpg 
---imageboundary--
+< ./sittingbridge.jpg"
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
 
+### 
+GET http://localhost:4400/photos/26
+
+###
+DELETE http://localhost:4400/photos/15

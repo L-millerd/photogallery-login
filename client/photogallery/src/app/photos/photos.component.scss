@@ -1,4 +1,30 @@
 .card-img-top{
   height: 300px;
   background-size: cover;
+  .close{
+
+  }
+}
+
+.addContainer{
+  width:50%;
+  padding-top: 50px;
+  padding-bottom: 50px;
+}
+
+.form-label, .form-select{
+  font-weight:bold;
+}
+
+@keyframes fadeout{
+  from{
+    opacity: 1;
+  }
+  to{
+    opacity: 0;
+  }
+}
+
+.fadeout{
+  animation: fadeout 2s;
 }

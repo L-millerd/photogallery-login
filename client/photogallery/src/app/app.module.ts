@@ -12,7 +12,7 @@ import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { SignupComponent } from './signup/signup.component';
 import { UpdateUserComponent } from './update-user/update-user.component';
-import { PostsComponent } from './posts/posts.component';
+
 
 @NgModule({
   declarations: [
@@ -24,7 +24,6 @@ import { PostsComponent } from './posts/posts.component';
     RegisterComponent,
     SignupComponent,
     UpdateUserComponent,
-    PostsComponent
   ],
   imports: [
     BrowserModule,

@@ -1,16 +1,49 @@
 import express from 'express';
 import { readyException } from 'jquery';
 import cors from 'cors';
-import mysql from 'mysql';
+// import mysql from 'mysql';
+import mysql from 'mysql2';
 import multer from 'multer';
+//file system for deleting files (no install required)
+import fs from 'fs';
+import 'dotenv/config';
 
 const db = mysql.createConnection({
-  host: 'localhost',
-  port: 3306,
-  user: 'root',
-  password: '',
-  database: 'Employees'
+  host: process.env.DBHOST,
+  port: process.env.DBPORT,
+  user: process.env.DBUSER,
+  password: process.env.DBPASSWORD,
+  database: process.env.DBDATABASE
 });
+
+//Virtual Machine
+// const db = mysql.createConnection({
+//   host: '165.232.136.63',
+//   port: 3306,
+//   user: 'myadmin',
+//   password: 'RainbowKat7149!',
+//   database: 'photogallery'
+// });
+
+//Locally Hosted 
+// const db = mysql.createConnection({
+//   host: 'localhost',
+//   port: 3306,
+//   user: 'root',
+//   password: '',
+
+//   database: 'photogallery'
+// });
+
+const server = express();
+server.use(cors(corsOption));
+server.use(express.json())
+server.use(express.static('uploads'))
+
+var corsOption={
+  origin: ["http://localhost:4200"],
+  optionSuccessStatus: 200
+}
 
 db.connect(error =>{
   if(error)
@@ -19,69 +52,8 @@ db.connect(error =>{
     console.log ("connected to mysql db");
 });
 
-
-const server = express();
-
-server.use(cors(corsOption));
-
-var corsOption={
-  origin: ["http://localhost:4200"],
-  optionSuccessStatus: 200
-}
-
-server.use(express.json())
-
-
-/////IMAGE UPLOADS
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, './uploads')
-  },
-  filename: function (req, file, cb) {
-    cb(null, file.originalname)
-  }
-})
-
-const fileupload = multer({ storage: storage });
-
-
-//File upload API
-server.post('/upload', fileupload.single("file") , (req, res) => {
-  console.log(req.file);
-})
-
-/////END IMAGE UPLOADS
-
-
-
-
-
-server.get('/employeesapi', (req, res) => {
-  let allEmpSP = "SELECT * FROM Employee";
-  let query = db.query(allEmpSP, (error, data) => {
-    if (error){
-      res.json({ErrorMessage:error});
-      // console.log(error);
-    }
-    else {
-      res.json(data);
-       // console.log(data);
-    }1
-  })
-})
-
-server.get('/employeesapi/:id', (req, res) => {
-  let emp_id = req.params.id;
-  //put a question mark for each parameter
-  let empSP = "CALL `One_emp_data`(?)";
-  db.query(empSP, [emp_id], (error, data, fields) => {
-    if (error){
-      res.json({ ErrorMessage: error });
-    }
-    else{
-      res.json(data[0]);
-    }
-  })
+server.listen(4400, function(){
+  console.log('server is successfully running on port 4400')
 })
 
 server.post('/login', (req, res) => {
@@ -204,77 +176,132 @@ server.get('/photosapi/:photoid', (req, res) => {
     res.json(jsonData.find( x => x.id == id_from_client))
 })
 
-server.listen(4400, function(){
-    console.log('server is successfully running on port 4400')
-})
 
-///////////////////////////////// Server Box /////////////////////////////////////////
+////////////////////////////////////Uploading////////////////////
 
-server.get('/posts', (req, res) => {
-  let query = "CALL `GetPost`()";
-  db.query(query, (error, data) =>{
+//ADD THIS BACK WHEN NOT TESTING
+server.get('/photos', (req, res)=>{
+  let query = "CALL `getPhotos`()";
+  db.query(query, (error, allphotos) =>{
     if(error){
-      res.json({data: false, message: error});
+      res.json({ allphotos: false, message: error})
     }
     else{
-      res.json({data: data[0], message: "Success"});
-    }
-  })
-});
- 
-server.post('/posts', (req, res)=>{
-  let query = "CALL `NewPost`(?, ?)";
-  db.query(query, [req.body.newpost, req.body.thumbnail], (error, newpostfromSQL) => {
-    if(error){
-      res.json({newpost: false, message: error})
-    }
-    else{
-      res.json({newpost: newpostfromSQL, message: "new post inserted"});
+      res.json({allphotos: allphotos[0], message: "returned photos"});
     }
   })
 })
 
-//this SP sends DEL_SUCESS as 0 or 1, we store it in 'delete success'
-//delete does not take any req.body, HAS to be req.params
-server.delete('/posts/:id', (req,res) =>{
-  let query = "CALL `DeletePost`(?)";
-  db.query(query, [req.params.id], (error, deleteSuccess) => {
-    ///if SP doesn't work 
-    if(error){
-      res.json({deleteSuccess: false, message: error});
-    }
-    //If it does work, but id is not found vs found
-    else{
-      if(deleteSuccess[0][0].DEL_SUCCESS == 0){
-        res.json({ deleteSuccess: deleteSuccess[0][0].DEL_SUCCESS, message: "ID not Found"})
-      }
-      else{
-        res.json({ deleteSuccess: deleteSuccess[0][0].DEL_SUCCESS, message: "deleted successfully"});
-      }
-    }
-  })
-})
-
-
-
-//file upload API
-server.post('/upload', fileupload.single("file"), (req, res) =>{
-  console.log(req.file.filename);
-})
-
-
-// server.put('/posts', (req, res)=>{
-//   let query = "CALL `UpdatePost`(?, ?)";
-//   let postID = req.query.id;
-//   let updatePost = req.body.updatePost;
-//   db.query(query, [postID, updatePost], (error, data)=>{
+// server.get('/photos', (req, res)=>{
+//   let query = "SELECT * FROM photos";
+//   db.query(query, (error, allphotos) =>{
 //     if(error){
-//       res.json({editPost: false, message: error});
+//       res.json({ allphotos: false, message: error})
 //     }
 //     else{
-//       res.json({editPost: true, message: "Post successfully edited"});
+//       res.json({allphotos: allphotos[0], message: "returned photos"});
 //     }
 //   })
 // })
 
+server.post('/photos', (req,res) => {
+  let query = "CALL `addPhoto`(?, ?, ?, ?)";
+  db.query(query, [req.body.albumId_fromC, req.body.title_fromC, req.body.url_fromC, req.body.tn_fromC], (error, newphoto)=>{
+    if(error){
+      res.json({newphoto: false, message: error});
+    }
+    else{
+      res.json({newphoto: newphoto[0], message: "Photo added to the database"})
+    }
+  })
+})
 
+////Multer
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, './uploads')
+  },
+  filename: function (req, file, cb) {
+    // const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+    cb(null, file.originalname)
+  }
+})
+
+//create instance of multer in a variable
+const fileupload = multer({ storage: storage})
+
+///Use in an API
+server.post('/upload', fileupload.single("file_fromC"), (req, res)=>{
+  res.json({fileupload: true});
+});
+
+
+// ///Gets photos by ID
+server.get('/photos/:photoid', (req, res) =>{
+  let query = "CALL `getPhotoByID`(?)";
+  db.query( query, [req.params.photoid], (error, photo) =>{
+    if(error){
+      res.json({photo: false, message: error});
+    }
+    else{
+      res.json({ photo: photo[0][0], message: "returned photo by ID"});
+    }
+  })
+})
+
+server.delete('/photos/:id', (req, res) =>{
+  let query = "CALL `deletePhoto`(?)";
+  let getFilename = "CALL `getPhotoByID`(?)";
+
+  db.query(getFilename, [req.params.id], (error, data)=>{
+   // res.json(data[0][0].url);
+   if(error){
+     res.json(error);
+   }
+   else{
+    let file_to_be_deleted = data[0][0].url;
+    fs.unlink('./uploads/' + file_to_be_deleted, (error)=>{
+      if (error){
+        res.json({deleteStatus: false, message:error});
+      }
+      else{
+        //if deleted from uploads, now delete from DB
+        db.query( query, [req.params.id], (error, deleteStatus) =>{
+          if(error){
+            res.json({ delStatus: false, message: error });
+          }
+          else{
+            let del_success = deleteStatus[0][0].DEL_SUCCESS;
+            if(del_success === 1){
+              res.json({delStatus: del_success, message: "Successfully Deleted"});
+            }
+            else{
+              res.json({delStatus: del_success, message: "ID not found"});
+            }
+          }
+        })      
+      }
+    })
+   }
+  })
+})
+
+//Deletes from DB ONLY
+
+// server.delete('/photos/:id', (req, res) =>{
+//   let query = "CALL `deletePhoto`(?)";
+//   db.query( query, [req.params.id], (error, deleteStatus) =>{
+//     if(error){
+//       res.json({ delStatus: false, message: error });
+//     }
+//     else{
+//       let del_success = deleteStatus[0][0].DEL_SUCCESS;
+//       if(del_success === 1){
+//         res.json({delStatus: del_success, message: "Successfully Deleted"});
+//       }
+//       else{
+//         res.json({delStatus: del_success, message: "ID not found"});
+//       }
+//     }
+//   })
+// })

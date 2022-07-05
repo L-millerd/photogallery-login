@@ -8,7 +8,8 @@ import { CommonService } from '../services/common.service';
 })
 export class SignupComponent implements OnInit {
   email: string = '';
-  password: string = '';
+  password1: string = '';
+  password2: string='';
   signupstatus:boolean = false;
   signupmessage:any = '';
 
@@ -17,11 +18,11 @@ export class SignupComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  signup(){
-    this.cs.signupService(this.email, this.password).subscribe(signupdata =>{
-      this.signupstatus = signupdata.newuser;
-      this.signupmessage = signupdata.message;
-    })
+  signup(email:any){
+    // this.cs.signupService(this.email, this.password).subscribe(signupdata =>{
+    //   this.signupstatus = signupdata.newuser;
+    //   this.signupmessage = signupdata.message;
+    // })
   }
 
 }
