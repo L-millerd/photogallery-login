@@ -1,5 +1,5 @@
 export const environment = {
-  production: false,
+  production: true,
   name: "Production Env",
   server: "https://seal-app-obde3.ondigitalocean.app/"
 };
