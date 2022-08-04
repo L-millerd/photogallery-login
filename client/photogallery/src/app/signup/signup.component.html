@@ -11,7 +11,6 @@
         class="form-control"
         id="email"
         required
-        pattern="^[^s@]+@[^s@]+.[^s@]{2,}$"
         aria-describedby="emailHelp"/>
       <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
       <div class="alert alert-danger" role="alert" *ngIf="email_.touched && email_.invalid">The expected email format is bob@domain.com</div>

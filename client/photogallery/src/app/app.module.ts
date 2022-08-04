@@ -12,6 +12,7 @@ import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { SignupComponent } from './signup/signup.component';
 import { UpdateUserComponent } from './update-user/update-user.component';
+import { TEAMComponent } from './team/team.component';
 
 
 @NgModule({
@@ -24,6 +25,7 @@ import { UpdateUserComponent } from './update-user/update-user.component';
     RegisterComponent,
     SignupComponent,
     UpdateUserComponent,
+    TEAMComponent,
   ],
   imports: [
     BrowserModule,
